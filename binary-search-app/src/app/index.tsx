@@ -49,26 +49,32 @@ export default function HomeScreen() {
   const [comparacoes, setComparacoes] = useState(0);
 
   function buscarNumero() {
-    const alvo = Number(valorBusca);
+  const alvo = Number(valorBusca);
 
-    const inicioTempo = performance.now();
+  const repeticoes = 100000;
 
-    const busca = binarySearch(numeros, alvo);
+  const inicioTempo = performance.now();
 
-    const fimTempo = performance.now();
+  let ultimaBusca = binarySearch(numeros, alvo);
 
-    const tempoExecucao = fimTempo - inicioTempo;
-
-    setTempo(tempoExecucao);
-    setComparacoes(busca.comparacoes);
-
-    if (busca.indice !== -1) {
-      setResultado(`Número encontrado no índice ${busca.indice}.`);
-    } else {
-      setResultado('Número não encontrado.');
-    }
+  for (let i = 1; i < repeticoes; i++) {
+    ultimaBusca = binarySearch(numeros, alvo);
   }
 
+  const fimTempo = performance.now();
+
+  const tempoTotal = fimTempo - inicioTempo;
+  const tempoMedio = tempoTotal / repeticoes;
+
+  setTempo(tempoMedio);
+  setComparacoes(ultimaBusca.comparacoes);
+
+  if (ultimaBusca.indice !== -1) {
+    setResultado(`Número encontrado no índice ${ultimaBusca.indice}.`);
+  } else {
+    setResultado('Número não encontrado.');
+  }
+}
   return (
     <View style={styles.container}>
       <Text style={styles.title}>Busca Binária</Text>
