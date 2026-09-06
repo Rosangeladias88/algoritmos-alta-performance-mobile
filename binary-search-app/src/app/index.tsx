@@ -10,12 +10,18 @@ import {
 function binarySearch(numeros: number[], alvo: number) {
   let inicio = 0;
   let fim = numeros.length - 1;
+  let comparacoes = 0;
 
   while (inicio <= fim) {
     const meio = Math.floor((inicio + fim) / 2);
 
+    comparacoes++;
+
     if (numeros[meio] === alvo) {
-      return meio;
+      return {
+        indice: meio,
+        comparacoes,
+      };
     }
 
     if (numeros[meio] < alvo) {
@@ -25,22 +31,39 @@ function binarySearch(numeros: number[], alvo: number) {
     }
   }
 
-  return -1;
-}
+  return {
+    indice: -1,
+    comparacoes,
+  };
+}const TAMANHO_LISTA = 1_000_000;
 
+const numeros = Array.from(
+  { length: TAMANHO_LISTA },
+  (_, indice) => indice + 1
+);
 export default function HomeScreen() {
-  const numeros = [2, 5, 8, 12, 16, 23, 38, 45, 56, 72];
 
   const [valorBusca, setValorBusca] = useState('');
   const [resultado, setResultado] = useState('');
+  const [tempo, setTempo] = useState(0);
+  const [comparacoes, setComparacoes] = useState(0);
 
   function buscarNumero() {
     const alvo = Number(valorBusca);
 
-    const indice = binarySearch(numeros, alvo);
+    const inicioTempo = performance.now();
 
-    if (indice !== -1) {
-      setResultado(`Número encontrado no índice ${indice}.`);
+    const busca = binarySearch(numeros, alvo);
+
+    const fimTempo = performance.now();
+
+    const tempoExecucao = fimTempo - inicioTempo;
+
+    setTempo(tempoExecucao);
+    setComparacoes(busca.comparacoes);
+
+    if (busca.indice !== -1) {
+      setResultado(`Número encontrado no índice ${busca.indice}.`);
     } else {
       setResultado('Número não encontrado.');
     }
@@ -59,8 +82,8 @@ export default function HomeScreen() {
       </Text>
 
       <Text style={styles.list}>
-        Lista: {numeros.join(', ')}
-      </Text>
+  Lista ordenada: 1 até {TAMANHO_LISTA.toLocaleString('pt-BR')}
+</Text>
 
       <TextInput
         style={styles.input}
@@ -76,9 +99,19 @@ export default function HomeScreen() {
       />
 
       {resultado !== '' && (
-        <Text style={styles.resultado}>
-          {resultado}
-        </Text>
+        <>
+          <Text style={styles.resultado}>
+            {resultado}
+          </Text>
+
+          <Text style={styles.metric}>
+            Comparações: {comparacoes}
+          </Text>
+
+          <Text style={styles.metric}>
+            Tempo: {tempo.toFixed(4)} ms
+          </Text>
+        </>
       )}
     </View>
   );
@@ -130,6 +163,12 @@ const styles = StyleSheet.create({
     fontSize: 16,
     marginTop: 20,
     fontWeight: 'bold',
+    textAlign: 'center',
+  },
+
+  metric: {
+    fontSize: 15,
+    marginTop: 8,
     textAlign: 'center',
   },
 });
