@@ -35,46 +35,84 @@ function binarySearch(numeros: number[], alvo: number) {
     indice: -1,
     comparacoes,
   };
-}const TAMANHO_LISTA = 1_000_000;
+}
+
+function linearSearch(numeros: number[], alvo: number) {
+  let comparacoes = 0;
+
+  for (let i = 0; i < numeros.length; i++) {
+    comparacoes++;
+
+    if (numeros[i] === alvo) {
+      return {
+        indice: i,
+        comparacoes,
+      };
+    }
+  }
+
+  return {
+    indice: -1,
+    comparacoes,
+  };
+}
+
+const TAMANHO_LISTA = 1_000_000;
 
 const numeros = Array.from(
   { length: TAMANHO_LISTA },
   (_, indice) => indice + 1
 );
-export default function HomeScreen() {
 
+export default function HomeScreen() {
   const [valorBusca, setValorBusca] = useState('');
   const [resultado, setResultado] = useState('');
+
   const [tempo, setTempo] = useState(0);
   const [comparacoes, setComparacoes] = useState(0);
 
+  const [tempoLinear, setTempoLinear] = useState(0);
+  const [comparacoesLinear, setComparacoesLinear] = useState(0);
+
   function buscarNumero() {
-  const alvo = Number(valorBusca);
+    const alvo = Number(valorBusca);
 
-  const repeticoes = 100000;
+    const repeticoes = 100000;
 
-  const inicioTempo = performance.now();
+    const inicioTempo = performance.now();
 
-  let ultimaBusca = binarySearch(numeros, alvo);
+    let ultimaBusca = binarySearch(numeros, alvo);
 
-  for (let i = 1; i < repeticoes; i++) {
-    ultimaBusca = binarySearch(numeros, alvo);
+    for (let i = 1; i < repeticoes; i++) {
+      ultimaBusca = binarySearch(numeros, alvo);
+    }
+
+    const fimTempo = performance.now();
+
+    const tempoTotal = fimTempo - inicioTempo;
+    const tempoMedio = tempoTotal / repeticoes;
+
+    setTempo(tempoMedio);
+    setComparacoes(ultimaBusca.comparacoes);
+
+    const inicioLinear = performance.now();
+
+    const resultadoLinear = linearSearch(numeros, alvo);
+
+    const fimLinear = performance.now();
+
+    setTempoLinear(fimLinear - inicioLinear);
+    setComparacoesLinear(resultadoLinear.comparacoes);
+
+    if (ultimaBusca.indice !== -1) {
+      setResultado(
+        `Número encontrado no índice ${ultimaBusca.indice}.`
+      );
+    } else {
+      setResultado('Número não encontrado.');
+    }
   }
 
-  const fimTempo = performance.now();
-
-  const tempoTotal = fimTempo - inicioTempo;
-  const tempoMedio = tempoTotal / repeticoes;
-
-  setTempo(tempoMedio);
-  setComparacoes(ultimaBusca.comparacoes);
-
-  if (ultimaBusca.indice !== -1) {
-    setResultado(`Número encontrado no índice ${ultimaBusca.indice}.`);
-  } else {
-    setResultado('Número não encontrado.');
-  }
-}
   return (
     <View style={styles.container}>
       <Text style={styles.title}>Busca Binária</Text>
@@ -84,12 +122,17 @@ export default function HomeScreen() {
       </Text>
 
       <Text style={styles.info}>
-        Complexidade: O(log n)
+        Busca Binária: O(log n)
+      </Text>
+
+      <Text style={styles.info}>
+        Busca Linear: O(n)
       </Text>
 
       <Text style={styles.list}>
-  Lista ordenada: 1 até {TAMANHO_LISTA.toLocaleString('pt-BR')}
-</Text>
+        Lista ordenada: 1 até{' '}
+        {TAMANHO_LISTA.toLocaleString('pt-BR')}
+      </Text>
 
       <TextInput
         style={styles.input}
@@ -105,9 +148,13 @@ export default function HomeScreen() {
       />
 
       {resultado !== '' && (
-        <>
+        <View style={styles.resultContainer}>
           <Text style={styles.resultado}>
             {resultado}
+          </Text>
+
+          <Text style={styles.algorithmTitle}>
+            Busca Binária
           </Text>
 
           <Text style={styles.metric}>
@@ -115,9 +162,21 @@ export default function HomeScreen() {
           </Text>
 
           <Text style={styles.metric}>
-            Tempo: {tempo.toFixed(4)} ms
+            Tempo médio: {tempo.toFixed(6)} ms
           </Text>
-        </>
+
+          <Text style={styles.algorithmTitle}>
+            Busca Linear
+          </Text>
+
+          <Text style={styles.metric}>
+            Comparações: {comparacoesLinear}
+          </Text>
+
+          <Text style={styles.metric}>
+            Tempo: {tempoLinear.toFixed(4)} ms
+          </Text>
+        </View>
       )}
     </View>
   );
@@ -145,6 +204,7 @@ const styles = StyleSheet.create({
 
   info: {
     fontSize: 16,
+    marginTop: 4,
   },
 
   list: {
@@ -165,16 +225,27 @@ const styles = StyleSheet.create({
     fontSize: 16,
   },
 
+  resultContainer: {
+    marginTop: 20,
+    alignItems: 'center',
+  },
+
   resultado: {
     fontSize: 16,
-    marginTop: 20,
     fontWeight: 'bold',
     textAlign: 'center',
+    marginBottom: 12,
+  },
+
+  algorithmTitle: {
+    fontSize: 17,
+    fontWeight: 'bold',
+    marginTop: 12,
   },
 
   metric: {
     fontSize: 15,
-    marginTop: 8,
+    marginTop: 6,
     textAlign: 'center',
   },
 });
