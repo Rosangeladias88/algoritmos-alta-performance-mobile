@@ -7,6 +7,13 @@ import {
   View,
 } from 'react-native';
 
+const TAMANHO_LISTA = 1_000_000;
+
+const numeros = Array.from(
+  { length: TAMANHO_LISTA },
+  (_, indice) => indice + 1
+);
+
 function binarySearch(numeros: number[], alvo: number) {
   let inicio = 0;
   let fim = numeros.length - 1;
@@ -37,54 +44,71 @@ function binarySearch(numeros: number[], alvo: number) {
   };
 }
 
-function linearSearch(numeros: number[], alvo: number) {
-  let comparacoes = 0;
-
-  for (let i = 0; i < numeros.length; i++) {
-    comparacoes++;
-
-    if (numeros[i] === alvo) {
-      return {
-        indice: i,
-        comparacoes,
-      };
-    }
-  }
-
-  return {
-    indice: -1,
-    comparacoes,
-  };
-}
-
-const TAMANHO_LISTA = 1_000_000;
-
-const numeros = Array.from(
-  { length: TAMANHO_LISTA },
-  (_, indice) => indice + 1
-);
-
 export default function HomeScreen() {
   const [valorBusca, setValorBusca] = useState('');
   const [resultado, setResultado] = useState('');
-
   const [tempo, setTempo] = useState(0);
   const [comparacoes, setComparacoes] = useState(0);
 
-  const [tempoLinear, setTempoLinear] = useState(0);
-  const [comparacoesLinear, setComparacoesLinear] = useState(0);
-
   function buscarNumero() {
+    if (valorBusca.trim() === '') {
+      setResultado('Digite um número válido.');
+      setTempo(0);
+      setComparacoes(0);
+      return;
+    }
+
     const alvo = Number(valorBusca);
 
-    const repeticoes = 100000;
+    if (
+      !Number.isInteger(alvo) ||
+      alvo < 1 ||
+      alvo > TAMANHO_LISTA
+    ) {
+      setResultado(
+        `Digite um número inteiro entre 1 e ${TAMANHO_LISTA.toLocaleString(
+          'pt-BR'
+        )}.`
+      );
+      setTempo(0);
+      setComparacoes(0);
+      return;
+    }
+
+    // Execução usada para obter o resultado
+    // e a quantidade real de comparações.
+    const resultadoBusca = binarySearch(numeros, alvo);
+
+    setComparacoes(resultadoBusca.comparacoes);
+
+    if (resultadoBusca.indice !== -1) {
+      setResultado(
+        `Número encontrado no índice ${resultadoBusca.indice}.`
+      );
+    } else {
+      setResultado('Número não encontrado.');
+    }
+
+    /*
+      Benchmark:
+
+      Como a Busca Binária é extremamente rápida,
+      executamos o algoritmo muitas vezes e depois
+      calculamos o tempo médio.
+    */
+    const repeticoes = 100_000;
+
+    let acumulador = 0;
 
     const inicioTempo = performance.now();
 
-    let ultimaBusca = binarySearch(numeros, alvo);
+    for (let i = 0; i < repeticoes; i++) {
+      const busca = binarySearch(numeros, alvo);
 
-    for (let i = 1; i < repeticoes; i++) {
-      ultimaBusca = binarySearch(numeros, alvo);
+      // Usamos o resultado para evitar que a execução
+      // seja considerada irrelevante pelo motor JavaScript.
+      acumulador += busca.indice;
+      acumulador += busca.comparacoes;
     }
 
     const fimTempo = performance.now();
@@ -92,41 +116,26 @@ export default function HomeScreen() {
     const tempoTotal = fimTempo - inicioTempo;
     const tempoMedio = tempoTotal / repeticoes;
 
-    setTempo(tempoMedio);
-    setComparacoes(ultimaBusca.comparacoes);
-
-    const inicioLinear = performance.now();
-
-    const resultadoLinear = linearSearch(numeros, alvo);
-
-    const fimLinear = performance.now();
-
-    setTempoLinear(fimLinear - inicioLinear);
-    setComparacoesLinear(resultadoLinear.comparacoes);
-
-    if (ultimaBusca.indice !== -1) {
-      setResultado(
-        `Número encontrado no índice ${ultimaBusca.indice}.`
-      );
-    } else {
-      setResultado('Número não encontrado.');
+    // Apenas impede que o acumulador fique sem uso.
+    if (acumulador === Number.MIN_SAFE_INTEGER) {
+      console.log(acumulador);
     }
+
+    setTempo(tempoMedio);
   }
 
   return (
     <View style={styles.container}>
-      <Text style={styles.title}>Busca Binária</Text>
+      <Text style={styles.title}>
+        Busca Binária
+      </Text>
 
       <Text style={styles.subtitle}>
         Análise de desempenho do algoritmo
       </Text>
 
       <Text style={styles.info}>
-        Busca Binária: O(log n)
-      </Text>
-
-      <Text style={styles.info}>
-        Busca Linear: O(n)
+        Complexidade: O(log n)
       </Text>
 
       <Text style={styles.list}>
@@ -143,7 +152,7 @@ export default function HomeScreen() {
       />
 
       <Button
-        title="Buscar"
+        title="Executar Busca Binária"
         onPress={buscarNumero}
       />
 
@@ -154,7 +163,7 @@ export default function HomeScreen() {
           </Text>
 
           <Text style={styles.algorithmTitle}>
-            Busca Binária
+            Resultado da Busca Binária
           </Text>
 
           <Text style={styles.metric}>
@@ -165,16 +174,8 @@ export default function HomeScreen() {
             Tempo médio: {tempo.toFixed(6)} ms
           </Text>
 
-          <Text style={styles.algorithmTitle}>
-            Busca Linear
-          </Text>
-
           <Text style={styles.metric}>
-            Comparações: {comparacoesLinear}
-          </Text>
-
-          <Text style={styles.metric}>
-            Tempo: {tempoLinear.toFixed(4)} ms
+            Repetições do teste: 100.000
           </Text>
         </View>
       )}
