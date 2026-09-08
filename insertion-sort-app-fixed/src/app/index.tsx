@@ -15,6 +15,7 @@ const listaOriginal = Array.from(
 
 function insertionSort(numeros: number[]) {
   const lista = [...numeros];
+
   let comparacoes = 0;
   let movimentacoes = 0;
 
@@ -45,69 +46,32 @@ function insertionSort(numeros: number[]) {
   };
 }
 
-function selectionSort(numeros: number[]) {
-  const lista = [...numeros];
-  let comparacoes = 0;
-  let movimentacoes = 0;
-
-  for (let i = 0; i < lista.length - 1; i++) {
-    let indiceMenor = i;
-
-    for (let j = i + 1; j < lista.length; j++) {
-      comparacoes++;
-
-      if (lista[j] < lista[indiceMenor]) {
-        indiceMenor = j;
-      }
-    }
-
-    if (indiceMenor !== i) {
-      const temporario = lista[i];
-      lista[i] = lista[indiceMenor];
-      lista[indiceMenor] = temporario;
-
-      movimentacoes += 3;
-    }
-  }
-
-  return {
-    lista,
-    comparacoes,
-    movimentacoes,
-  };
-}
 export default function HomeScreen() {
-  const [listaOrdenada, setListaOrdenada] = useState<number[]>([]);
+  const [executado, setExecutado] = useState(false);
   const [comparacoes, setComparacoes] = useState(0);
   const [movimentacoes, setMovimentacoes] = useState(0);
   const [tempo, setTempo] = useState(0);
-  const [comparacoesSelection, setComparacoesSelection] = useState(0);
-const [movimentacoesSelection, setMovimentacoesSelection] = useState(0);
-const [tempoSelection, setTempoSelection] = useState(0);
 
   function ordenar() {
-    const inicio = performance.now();
+    const inicioTempo = performance.now();
 
     const resultado = insertionSort(listaOriginal);
-    const fim = performance.now();
 
-    const inicioSelection = performance.now();
-const resultadoSelection = selectionSort(listaOriginal);
-const fimSelection = performance.now();
-    
+    const fimTempo = performance.now();
 
-    setListaOrdenada(resultado.lista);
+    const tempoExecucao = fimTempo - inicioTempo;
+
     setComparacoes(resultado.comparacoes);
     setMovimentacoes(resultado.movimentacoes);
-    setTempo(fim - inicio);
-    setComparacoesSelection(resultadoSelection.comparacoes);
-setMovimentacoesSelection(resultadoSelection.movimentacoes);
-setTempoSelection(fimSelection - inicioSelection);
+    setTempo(tempoExecucao);
+    setExecutado(true);
   }
 
   return (
     <View style={styles.container}>
-      <Text style={styles.title}>Insertion Sort</Text>
+      <Text style={styles.title}>
+        Insertion Sort
+      </Text>
 
       <Text style={styles.subtitle}>
         Análise de desempenho do algoritmo
@@ -118,53 +82,45 @@ setTempoSelection(fimSelection - inicioSelection);
       </Text>
 
       <Text style={styles.list}>
-  Quantidade de elementos: {TAMANHO_LISTA}
-</Text>
+        Quantidade de elementos: {TAMANHO_LISTA.toLocaleString('pt-BR')}
+      </Text>
+
+      <Text style={styles.list}>
+        Entrada: lista em ordem inversa
+      </Text>
 
       <Button
-        title="Ordenar"
+        title="Executar Insertion Sort"
         onPress={ordenar}
       />
 
-     {listaOrdenada.length > 0 && (
-  <View style={styles.resultContainer}>
-    <Text style={styles.resultado}>
-      Lista ordenada com sucesso: {listaOrdenada.length} elementos
-    </Text>
+      {executado && (
+        <View style={styles.resultContainer}>
+          <Text style={styles.resultado}>
+            Lista ordenada com sucesso!
+          </Text>
 
-    <Text style={styles.resultado}>
-      Insertion Sort
-    </Text>
+          <Text style={styles.algorithmTitle}>
+            Resultado do Insertion Sort
+          </Text>
 
-    <Text style={styles.metric}>
-      Comparações: {comparacoes}
-    </Text>
+          <Text style={styles.metric}>
+            Elementos ordenados: {TAMANHO_LISTA.toLocaleString('pt-BR')}
+          </Text>
 
-    <Text style={styles.metric}>
-      Movimentações: {movimentacoes}
-    </Text>
+          <Text style={styles.metric}>
+            Comparações: {comparacoes.toLocaleString('pt-BR')}
+          </Text>
 
-    <Text style={styles.metric}>
-      Tempo: {tempo.toFixed(4)} ms
-    </Text>
+          <Text style={styles.metric}>
+            Movimentações: {movimentacoes.toLocaleString('pt-BR')}
+          </Text>
 
-    <Text style={styles.resultado}>
-      Selection Sort
-    </Text>
-
-    <Text style={styles.metric}>
-      Comparações: {comparacoesSelection}
-    </Text>
-
-    <Text style={styles.metric}>
-      Movimentações: {movimentacoesSelection}
-    </Text>
-
-    <Text style={styles.metric}>
-      Tempo: {tempoSelection.toFixed(4)} ms
-    </Text>
-  </View>
-)}
+          <Text style={styles.metric}>
+            Tempo de execução: {tempo.toFixed(4)} ms
+          </Text>
+        </View>
+      )}
     </View>
   );
 }
@@ -186,17 +142,18 @@ const styles = StyleSheet.create({
   subtitle: {
     fontSize: 18,
     marginBottom: 24,
+    textAlign: 'center',
   },
 
   info: {
     fontSize: 17,
-    marginBottom: 20,
+    marginBottom: 16,
   },
 
   list: {
     fontSize: 16,
     textAlign: 'center',
-    marginBottom: 24,
+    marginBottom: 12,
   },
 
   resultContainer: {
@@ -211,8 +168,15 @@ const styles = StyleSheet.create({
     marginBottom: 16,
   },
 
+  algorithmTitle: {
+    fontSize: 17,
+    fontWeight: 'bold',
+    marginBottom: 10,
+  },
+
   metric: {
     fontSize: 16,
     marginBottom: 6,
+    textAlign: 'center',
   },
 });
