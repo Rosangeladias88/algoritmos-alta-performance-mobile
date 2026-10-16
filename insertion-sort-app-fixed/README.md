@@ -54,3 +54,36 @@ Join our community of developers creating universal apps.
 
 - [Expo on GitHub](https://github.com/expo/expo): View our open source platform and contribute.
 - [Discord community](https://chat.expo.dev): Chat with Expo users and ask questions.
+
+
+## Testes de Carga — Insertion Sort
+
+### Ferramenta utilizada
+Jest, framework de testes automatizados para JavaScript e TypeScript.
+
+### Objetivo
+Avaliar o desempenho do algoritmo Insertion Sort com diferentes quantidades de elementos.
+
+### Metodologia
+Foram utilizadas listas em ordem decrescente com 1.000, 5.000, 10.000 e 20.000 elementos, representando o pior caso do algoritmo.
+
+### Resultados
+
+
+| Elementos | Tempo (ms) |
+|---|---:|
+| 1.000 | 6,9824 |
+| 5.000 | 66,1111 |
+| 10.000 | 249,1867 |
+| 20.000 | 988,5455 |
+
+
+### Análise
+O tempo de execução aumentou significativamente conforme a quantidade de elementos cresceu.
+
+Os resultados são compatíveis com a complexidade quadrática O(n²) do Insertion Sort no pior caso.
+
+### Conclusão
+Todos os quatro testes de carga passaram. O algoritmo produziu resultados corretos, mas apresentou aumento expressivo no tempo de execução para entradas maiores.
+
+Os testes avaliaram a lógica do algoritmo em ambiente Jest, e não o desempenho completo do aplicativo em um dispositivo móvel.
