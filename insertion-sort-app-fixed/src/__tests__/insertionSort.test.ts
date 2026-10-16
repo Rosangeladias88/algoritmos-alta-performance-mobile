@@ -18,4 +18,28 @@ describe('Insertion Sort', () => {
 
     expect(resultado.lista).toEqual([1, 2, 3, 4, 5]);
   });
+  
+test('deve retornar uma lista vazia quando a entrada estiver vazia', () => {
+  const entrada: number[] = [];
+
+  const resultado = insertionSort(entrada);
+
+  expect(resultado.lista).toEqual([]);
+});
+test('deve ordenar uma lista com números repetidos', () => {
+  const entrada = [4, 2, 4, 1, 2];
+
+  const resultado = insertionSort(entrada);
+
+  expect(resultado.lista).toEqual([1, 2, 2, 4, 4]);
+});
+
+test('deve ordenar uma lista com números negativos', () => {
+  const entrada = [3, -2, 0, -5, 1];
+
+  const resultado = insertionSort(entrada);
+
+  expect(resultado.lista).toEqual([-5, -2, 0, 1, 3]);
+});
+
 });
